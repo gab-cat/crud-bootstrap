@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <title>CA7-Realubit</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body{
+      margin: 50px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <p align="center"> <font size="6">
+    <strong>Bootstrap Activity</strong><br>
+    Index Page 
+  </p></font>
+
+    <!-- Index Page Section -->
+    <div class="row g-4">
+      <!-- Item Management Card -->
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-info">
+            ITEM MANAGEMENT
+          </div>
+          <div class="card-body">
+            <form id="addItemForm">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter name">
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" placeholder="Enter description">
+              </div>
+              <div class="mb-3">
+                <label for="value" class="form-label">Value</label>
+                <input type="text" class="form-control" id="value" placeholder="Enter value">
+              </div>
+              <button type="button" class="btn btn-info" onclick="addItem()">
+                Add Item
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Item Table -->
+      <div class="col-md-8">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success">
+            VIEW ITEM
+          </div>
+          <div class="card-body">
+            <table class="table table-hover" id="itemTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Value</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="itemTableBody">
+                <!-- Dynamic rows will be added here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const initialItems = [
+      { name: "Blond", description: "Frank Ocean Album", value: "3,000" },
+      { name: "Charm", description: "Clairo Album", value: "600" },
+      { name: "Submarine", description: "The Marias Album", value: "990" },
+      { name: "Brat", description: "Charli XCX Album", value: "999" },
+      { name: "Medisina", description: "Zild Album", value: "500" }
+    ];
+
+    if (!sessionStorage.getItem('items')) {
+      sessionStorage.setItem('items', JSON.stringify(initialItems));
+    }
+
+    let items = JSON.parse(sessionStorage.getItem('items'));
+
+    function addItem() {
+      const name = document.getElementById("name").value;
+      const description = document.getElementById("description").value;
+      const value = document.getElementById("value").value;
+
+      if (name && description && value) {
+        items.push({ name, description, value });
+        sessionStorage.setItem('items', JSON.stringify(items));
+        renderTable();
+        document.getElementById("addItemForm").reset();
+      }
+    }
+
+    function renderTable() {
+      const tableBody = document.getElementById("itemTableBody");
+      tableBody.innerHTML = "";
+
+      items.forEach((item, index) => {
+        const row = `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.description}</td>
+            <td>${item.value}</td>
+            <td>
+              <button class="btn btn-outline-warning btn-sm" onclick="prepareUpdate(${index})" title="Edit">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm" onclick="prepareDelete(${index})" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+        tableBody.insertAdjacentHTML("beforeend", row);
+      });
+    }
+
+    function prepareUpdate(index) {
+      const item = items[index];
+      const params = new URLSearchParams({
+        index: index,
+        name: item.name,
+        description: item.description,
+        value: item.value
+      });
+      window.location.href = `update.html?${params.toString()}`;
+    }
+
+    function prepareDelete(index) {
+      const item = items[index];
+      const params = new URLSearchParams({
+        index: index,
+        name: item.name,
+        description: item.description,
+        value: item.value
+      });
+      window.location.href = `delete.html?${params.toString()}`;
+    }
+
+    function deleteItem() {
+      const index = document.getElementById("deleteIndex").value;
+      items.splice(index, 1);
+      sessionStorage.setItem('items', JSON.stringify(items));
+      renderTable();
+      document.getElementById("deleteItemForm").reset();
+      bootstrap.Modal.getInstance(document.getElementById('deleteItemModal')).hide();
+    }
+
+    // Render the table with initial items when the page loads
+    window.onload = renderTable;
+  </script>
+</body>
+</html>
